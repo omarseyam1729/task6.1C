@@ -53,22 +53,31 @@ pipeline {
             }
         }
     }
+    
     post {
         always {
             echo 'Pipeline finished!'
+            // Archive the console log so it can be sent as an email attachment
+            archiveArtifacts artifacts: 'consoleText', allowEmptyArchive: true
         }
         failure {
-            emailext to: 'omarseyam1729@gmail.com',
+            emailext (
+                to: 'omarseyam1729@gmail.com',
                 subject: "Jenkins Build Failed: ${env.BUILD_ID}",
                 body: """Build ${env.BUILD_ID} failed.
-                        Commit message: ${COMMIT_MESSAGE}
-                        Check Jenkins for details."""
+                         Commit message: ${COMMIT_MESSAGE}
+                         Check Jenkins for details.""",
+                attachmentsPattern: '**/consoleText'
+            )
         }
         success {
-            emailext to: 'omarseyam1729@gmail.com',
+            emailext (
+                to: 'omarseyam1729@gmail.com',
                 subject: "Jenkins Build Success: ${env.BUILD_ID}",
                 body: """Build ${env.BUILD_ID} completed successfully.
-                        Commit message: ${COMMIT_MESSAGE}"""
+                         Commit message: ${COMMIT_MESSAGE}""",
+                attachmentsPattern: '**/consoleText'
+            )
         }
     }
 }
