@@ -1,10 +1,18 @@
 pipeline {
     agent any
 
+    environment {
+        COMMIT_MESSAGE = ''
+    }
+
     stages {
         stage('Build') {
             steps {
                 echo 'Building the code...'
+                script {
+                    COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
+                    echo "Commit message: ${COMMIT_MESSAGE}"
+                }
                 // You can use Maven or Gradle
                 // Example: sh 'mvn clean package'
             }
@@ -56,12 +64,15 @@ pipeline {
         failure {
             mail to: 'omarseyam1729@gmail.com',
                  subject: "Jenkins Build Failed: ${env.BUILD_ID}",
-                 body: "Build ${env.BUILD_ID} failed. Check Jenkins for details."
+                 body: """Build ${env.BUILD_ID} failed.
+                          Commit message: ${env.COMMIT_MESSAGE}
+                          Check Jenkins for details."""
         }
         success {
             mail to: 'omarseyam1729@gmail.com',
                  subject: "Jenkins Build Success: ${env.BUILD_ID}",
-                 body: "Build ${env.BUILD_ID} completed successfully."
+                 body: """Build ${env.BUILD_ID} completed successfully.
+                          Commit message: ${env.COMMIT_MESSAGE}"""
         }
     }
 }
