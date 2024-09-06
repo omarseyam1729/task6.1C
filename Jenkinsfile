@@ -3,63 +3,63 @@ pipeline {
     
     environment {
         COMMIT_MESSAGE = ''
+        BUILD_LOG = 'build_log.txt'
     }
     
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                script {
+                    checkout scm
+                    sh "echo 'Checkout completed at $(date)' >> ${BUILD_LOG}"
+                }
             }
         }
         stage('Build') {
             steps {
-                echo 'Building the code...'
                 script {
+                    sh "echo 'Building the code...' >> ${BUILD_LOG}"
                     COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
-                    echo "Commit message: ${COMMIT_MESSAGE}"
+                    sh "echo 'Commit message: ${COMMIT_MESSAGE}' >> ${BUILD_LOG}"
                 }
             }
         }
         stage('Unit and Integration Tests') {
             steps {
-                echo 'Running Unit and Integration Tests...'
+                sh "echo 'Running Unit and Integration Tests...' >> ${BUILD_LOG}"
             }
         }
         stage('Code Analysis') {
             steps {
-                echo 'Running Code Analysis...'
+                sh "echo 'Running Code Analysis...' >> ${BUILD_LOG}"
             }
         }
         stage('Security Scan') {
             steps {
-                echo 'Running Security Scan...'
+                sh "echo 'Running Security Scan...' >> ${BUILD_LOG}"
             }
         }
         stage('Deploy to Staging') {
             steps {
-                echo 'Deploying to Staging...'
+                sh "echo 'Deploying to Staging...' >> ${BUILD_LOG}"
             }
         }
         stage('Integration Tests on Staging') {
             steps {
-                echo 'Running Integration Tests on Staging...'
+                sh "echo 'Running Integration Tests on Staging...' >> ${BUILD_LOG}"
             }
         }
         stage('Deploy to Production') {
             steps {
-                echo 'Deploying to Production...'
+                sh "echo 'Deploying to Production...' >> ${BUILD_LOG}"
             }
         }
     }
     
     post {
         always {
-            echo 'Pipeline finished!'
-            // Archive the console log
-            script {
-                writeFile file: 'build.log', text: currentBuild.rawBuild.log
-                archiveArtifacts artifacts: 'build.log', allowEmptyArchive: true
-            }
+            sh "echo 'Pipeline finished at $(date)' >> ${BUILD_LOG}"
+            archiveArtifacts artifacts: "${BUILD_LOG}", allowEmptyArchive: true
         }
         failure {
             emailext (
@@ -68,7 +68,7 @@ pipeline {
                 body: """Build ${env.BUILD_ID} failed.
                 Commit message: ${COMMIT_MESSAGE}
                 Check Jenkins for details.""",
-                attachLog: true
+                attachmentsPattern: "${BUILD_LOG}"
             )
         }
         success {
@@ -77,7 +77,7 @@ pipeline {
                 subject: "Jenkins Build Success: ${env.BUILD_ID}",
                 body: """Build ${env.BUILD_ID} completed successfully.
                 Commit message: ${COMMIT_MESSAGE}""",
-                attachLog: true
+                attachmentsPattern: "${BUILD_LOG}"
             )
         }
     }
