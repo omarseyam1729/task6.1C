@@ -69,17 +69,29 @@ pipeline {
             echo 'Pipeline finished!'
         }
         failure {
-            mail to: 'omarseyam1729@gmail.com',
-                 subject: "Jenkins Build Failed: ${env.BUILD_ID}",
-                 body: """Build ${env.BUILD_ID} failed.
-                          Commit message: ${COMMIT_MESSAGE}
-                          Check Jenkins for details."""
+            script {
+                def log = currentBuild.rawBuild.getLog(100).join("\n")
+                writeFile file: 'build.log', text: log
+            }
+            emailext to: 'omarseyam1729@gmail.com',
+                subject: "Jenkins Build Failed: ${env.BUILD_ID}",
+                body: """Build ${env.BUILD_ID} failed.
+                        Commit message: ${COMMIT_MESSAGE}
+                        Check Jenkins for details.""",
+                attachLog: true,
+                attachmentsPattern: 'build.log'
         }
         success {
-            mail to: 'omarseyam1729@gmail.com',
-                 subject: "Jenkins Build Success: ${env.BUILD_ID}",
-                 body: """Build ${env.BUILD_ID} completed successfully.
-                          Commit message: ${COMMIT_MESSAGE}"""
+            script {
+                def log = currentBuild.rawBuild.getLog(100).join("\n")
+                writeFile file: 'build.log', text: log
+            }
+            emailext to: 'omarseyam1729@gmail.com',
+                subject: "Jenkins Build Success: ${env.BUILD_ID}",
+                body: """Build ${env.BUILD_ID} completed successfully.
+                        Commit message: ${COMMIT_MESSAGE}""",
+                attachLog: true,
+                attachmentsPattern: 'build.log'
         }
     }
 }
