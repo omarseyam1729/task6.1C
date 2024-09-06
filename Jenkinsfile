@@ -57,33 +57,28 @@ pipeline {
             echo 'Pipeline finished!'
             // Archive the console log
             script {
-                def consoleLog = currentBuild.rawBuild.getLog(10000).join('\n')
-                writeFile file: 'console.log', text: consoleLog
-                archiveArtifacts artifacts: 'console.log', allowEmptyArchive: true
+                writeFile file: 'build.log', text: currentBuild.rawBuild.log
+                archiveArtifacts artifacts: 'build.log', allowEmptyArchive: true
             }
         }
         failure {
-            script {
-                emailext (
-                    to: 'omarseyam1729@gmail.com',
-                    subject: "Jenkins Build Failed: ${env.BUILD_ID}",
-                    body: """Build ${env.BUILD_ID} failed.
-                    Commit message: ${COMMIT_MESSAGE}
-                    Check Jenkins for details.""",
-                    attachmentsPattern: 'console.log'
-                )
-            }
+            emailext (
+                to: 'omarseyam1729@gmail.com',
+                subject: "Jenkins Build Failed: ${env.BUILD_ID}",
+                body: """Build ${env.BUILD_ID} failed.
+                Commit message: ${COMMIT_MESSAGE}
+                Check Jenkins for details.""",
+                attachLog: true
+            )
         }
         success {
-            script {
-                emailext (
-                    to: 'omarseyam1729@gmail.com',
-                    subject: "Jenkins Build Success: ${env.BUILD_ID}",
-                    body: """Build ${env.BUILD_ID} completed successfully.
-                    Commit message: ${COMMIT_MESSAGE}""",
-                    attachmentsPattern: 'console.log'
-                )
-            }
+            emailext (
+                to: 'omarseyam1729@gmail.com',
+                subject: "Jenkins Build Success: ${env.BUILD_ID}",
+                body: """Build ${env.BUILD_ID} completed successfully.
+                Commit message: ${COMMIT_MESSAGE}""",
+                attachLog: true
+            )
         }
     }
 }
