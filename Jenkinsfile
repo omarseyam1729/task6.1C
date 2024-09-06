@@ -6,10 +6,17 @@ pipeline {
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                // Ensure the repository is checked out
+                checkout scm
+            }
+        }
         stage('Build') {
             steps {
                 echo 'Building the code...'
                 script {
+                    // Fetch the latest commit message
                     COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
                     echo "Commit message: ${COMMIT_MESSAGE}"
                 }
@@ -65,14 +72,14 @@ pipeline {
             mail to: 'omarseyam1729@gmail.com',
                  subject: "Jenkins Build Failed: ${env.BUILD_ID}",
                  body: """Build ${env.BUILD_ID} failed.
-                          Commit message: ${env.COMMIT_MESSAGE}
+                          Commit message: ${COMMIT_MESSAGE}
                           Check Jenkins for details."""
         }
         success {
             mail to: 'omarseyam1729@gmail.com',
                  subject: "Jenkins Build Success: ${env.BUILD_ID}",
                  body: """Build ${env.BUILD_ID} completed successfully.
-                          Commit message: ${env.COMMIT_MESSAGE}"""
+                          Commit message: ${COMMIT_MESSAGE}"""
         }
     }
 }
