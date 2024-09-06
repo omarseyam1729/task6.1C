@@ -1,14 +1,13 @@
 pipeline {
     agent any
-
+    
     environment {
         COMMIT_MESSAGE = ''
     }
-
+    
     stages {
         stage('Checkout') {
             steps {
-                // Ensure the repository is checked out
                 checkout scm
             }
         }
@@ -16,7 +15,6 @@ pipeline {
             steps {
                 echo 'Building the code...'
                 script {
-                    // Fetch the latest commit message
                     COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
                     echo "Commit message: ${COMMIT_MESSAGE}"
                 }
@@ -57,27 +55,35 @@ pipeline {
     post {
         always {
             echo 'Pipeline finished!'
-            // Archive the console log so it can be sent as an email attachment
-            archiveArtifacts artifacts: 'consoleText', allowEmptyArchive: true
+            // Archive the console log
+            script {
+                def consoleLog = currentBuild.rawBuild.getLog(10000).join('\n')
+                writeFile file: 'console.log', text: consoleLog
+                archiveArtifacts artifacts: 'console.log', allowEmptyArchive: true
+            }
         }
         failure {
-            emailext (
-                to: 'omarseyam1729@gmail.com',
-                subject: "Jenkins Build Failed: ${env.BUILD_ID}",
-                body: """Build ${env.BUILD_ID} failed.
-                         Commit message: ${COMMIT_MESSAGE}
-                         Check Jenkins for details.""",
-                attachmentsPattern: '**/consoleText'
-            )
+            script {
+                emailext (
+                    to: 'omarseyam1729@gmail.com',
+                    subject: "Jenkins Build Failed: ${env.BUILD_ID}",
+                    body: """Build ${env.BUILD_ID} failed.
+                    Commit message: ${COMMIT_MESSAGE}
+                    Check Jenkins for details.""",
+                    attachmentsPattern: 'console.log'
+                )
+            }
         }
         success {
-            emailext (
-                to: 'omarseyam1729@gmail.com',
-                subject: "Jenkins Build Success: ${env.BUILD_ID}",
-                body: """Build ${env.BUILD_ID} completed successfully.
-                         Commit message: ${COMMIT_MESSAGE}""",
-                attachmentsPattern: '**/consoleText'
-            )
+            script {
+                emailext (
+                    to: 'omarseyam1729@gmail.com',
+                    subject: "Jenkins Build Success: ${env.BUILD_ID}",
+                    body: """Build ${env.BUILD_ID} completed successfully.
+                    Commit message: ${COMMIT_MESSAGE}""",
+                    attachmentsPattern: 'console.log'
+                )
+            }
         }
     }
 }
