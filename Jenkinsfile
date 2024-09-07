@@ -64,7 +64,8 @@ pipeline {
                 to: 'omarseyam1729@gmail.com',
                 subject: "Jenkins Build Completed: ${env.BUILD_ID}",
                 body: """Build ${env.BUILD_ID} completed.
-                Commit message: ${commitMsg}"""
+                Commit message: ${commitMsg}""",
+                debug: true
             )
         }
     }
@@ -76,7 +77,8 @@ pipeline {
                     body: """Build ${env.BUILD_ID} failed.
                     Commit message: ${COMMIT_MESSAGE}
                     Check Jenkins for details.""",
-                    attachmentsPattern: "${BUILD_LOG}"
+                    attachmentsPattern: "${BUILD_LOG}",
+                    debug: true
                 )
             }
         }
@@ -87,7 +89,8 @@ pipeline {
                     subject: "Jenkins Build Success: ${env.BUILD_ID}",
                     body: """Build ${env.BUILD_ID} completed successfully.
                     Commit message: ${COMMIT_MESSAGE}""",
-                    attachmentsPattern: "${BUILD_LOG}"
+                    attachmentsPattern: "${BUILD_LOG}",
+                    debug:true
                 )
             }
         }
