@@ -4,60 +4,64 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                echo 'Building the code using Maven'
-                // For example: sh 'mvn clean package'
+                echo 'Building the code...'
+                // You can use Maven or Gradle
+                // Example: sh 'mvn clean package'
             }
         }
         stage('Unit and Integration Tests') {
             steps {
-                echo 'Running unit tests using JUnit and integration tests using TestNG'
-                // For example: sh 'mvn test'
-                // For integration tests: sh 'mvn verify'
+                echo 'Running Unit and Integration Tests...'
+                // Example tool: JUnit, TestNG
+                // Example: sh 'mvn test'
             }
         }
         stage('Code Analysis') {
             steps {
-                echo 'Analyzing code using SonarQube'
-                // For example: sh 'sonar-scanner'
+                echo 'Running Code Analysis...'
+                // Example tool: SonarQube
+                // Example: sh 'sonar-scanner'
             }
         }
         stage('Security Scan') {
             steps {
-                echo 'Performing security scan using OWASP Dependency-Check'
-                // For example: sh 'dependency-check.sh'
+                echo 'Running Security Scan...'
+                // Example tool: OWASP Dependency-Check
+                // Example: sh 'dependency-check --project JenkinsPipeline --scan ./'
             }
         }
         stage('Deploy to Staging') {
             steps {
-                echo 'Deploying application to staging server (AWS EC2 instance)'
-                // Example deployment command, such as using AWS CLI
-                // sh 'aws deploy create-deployment --application-name MyApp --deployment-group-name Staging --s3-location bucket=my-bucket,key=my-app.zip'
+                echo 'Deploying to Staging...'
+                // Example: Deploy to AWS EC2 using SSH or AWS CLI
             }
         }
         stage('Integration Tests on Staging') {
             steps {
-                echo 'Running integration tests on the staging environment'
-                // Example integration test commands
-                // sh 'run-integration-tests.sh'
+                echo 'Running Integration Tests on Staging...'
+                // Example: run integration tests using a test suite
             }
         }
         stage('Deploy to Production') {
             steps {
-                echo 'Deploying application to production server (AWS EC2 instance)'
-                // Example deployment command
-                // sh 'aws deploy create-deployment --application-name MyApp --deployment-group-name Production --s3-location bucket=my-bucket,key=my-app.zip'
+                echo 'Deploying to Production...'
+                // Example: Deploy to AWS EC2 using SSH or AWS CLI
             }
         }
     }
-
     post {
         always {
-            emailext(
-                subject: "Pipeline ${currentBuild.currentResult}: ${currentBuild.fullDisplayName}",
-                body: "Build result: ${currentBuild.currentResult}\n\nSee logs at ${env.BUILD_URL}",
-                recipientProviders: [[$class: 'Developers']],
-                attachmentsPattern: '**/test-*.log'
-            )
+            echo 'Pipeline finished!'
+        }
+        failure {
+            mail to: 'your-email@example.com',
+                 subject: "Jenkins Build Failed: ${env.BUILD_ID}",
+                 body: "Build ${env.BUILD_ID} failed. Check Jenkins for details."
+        }
+        success {
+            mail to: 'your-email@example.com',
+                 subject: "Jenkins Build Success: ${env.BUILD_ID}",
+                 body: "Build ${env.BUILD_ID} completed successfully."
         }
     }
 }
