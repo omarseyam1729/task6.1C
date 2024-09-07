@@ -1,83 +1,176 @@
 pipeline {
+    
     agent any
 
     stages {
         stage('Build') {
             steps {
-                echo 'Building the code...'
-                // Example: Save build logs to a file
-                sh 'mvn clean package | tee build.log'
-                archiveArtifacts artifacts: 'build.log', allowEmptyArchive: true
+                echo 'Stage 1: Build'
+                echo 'Task: Build the code using a build automation tool'
+                echo 'Tools: Maven, Gradle, Ant'
+                // Add your actual build commands here, e.g., sh 'mvn clean install'
+            }
+            post {
+                failure {
+                    emailext (
+                        to: 'omarseyam1729@gmail.com',
+                        subject: "${env.JOB_NAME} - Build ${env.BUILD_NUMBER} Failed at Build Stage",
+                        body: "Build failed. Please check the logs for details.",
+                        attachLog: true
+                    )
+                }
             }
         }
+
         stage('Unit and Integration Tests') {
             steps {
-                echo 'Running Unit and Integration Tests...'
-                // Example: Save test logs to a file
-                sh 'mvn test | tee test.log'
-                archiveArtifacts artifacts: 'test.log', allowEmptyArchive: true
+                echo 'Stage 2: Unit and Integration Tests'
+                echo 'Task: Run unit tests and integration tests'
+                echo 'Tools: JUnit, TestNG, Selenium, Mockito'
+                sh 'echo "Running unit tests..." > unit-tests.log'
+                // Add actual test commands here, e.g., sh 'mvn test'
+                sh 'echo "Tests completed successfully." >> unit-tests.log'
+            }
+            post {
+                always {
+                    def buildStatus = currentBuild.result ?: 'SUCCESS'
+                    def subject = "${env.JOB_NAME} - Build ${env.BUILD_NUMBER} - Unit and Integration Tests ${buildStatus}"
+                    def body = """
+                    Unit and Integration Tests Status: ${buildStatus}
+                    Job: ${env.JOB_NAME}
+                    Build Number: ${env.BUILD_NUMBER}
+                    """
+
+                    emailext (
+                        to: 'omarseyam1729@gmail.com',
+                        subject: subject,
+                        body: body,
+                        attachmentsPattern: 'unit-tests.log'
+                    )
+                }
             }
         }
+
         stage('Code Analysis') {
             steps {
-                echo 'Running Code Analysis...'
-                // Example: Save code analysis logs to a file
-                sh 'sonar-scanner | tee code_analysis.log'
-                archiveArtifacts artifacts: 'code_analysis.log', allowEmptyArchive: true
+                echo 'Stage 3: Code Analysis'
+                echo 'Task: Analyze code quality and adherence to industry standards'
+                echo 'Tools: SonarQube, Checkstyle, PMD, SpotBugs'
+                // Add actual code analysis commands here, e.g., sh 'sonar-scanner'
+            }
+            post {
+                failure {
+                    emailext (
+                        to: 'omarseyam1729@gmail.com',
+                        subject: "${env.JOB_NAME} - Build ${env.BUILD_NUMBER} Failed at Code Analysis Stage",
+                        body: "Code analysis failed. Please check the logs for details.",
+                        attachLog: true
+                    )
+                }
             }
         }
+
         stage('Security Scan') {
             steps {
-                echo 'Running Security Scan...'
-                // Example: Save security scan logs to a file
-                sh 'dependency-check --project JenkinsPipeline --scan ./ | tee security_scan.log'
-                archiveArtifacts artifacts: 'security_scan.log', allowEmptyArchive: true
+                echo 'Stage 4: Security Scan'
+                echo 'Task: Scan the code for security vulnerabilities'
+                echo 'Tools: Snyk, OWASP Dependency-Check, Veracode'
+                sh 'echo "Running security scan..." > security-scan.log'
+                // Add actual security scan commands here, e.g., sh 'snyk test'
+                sh 'echo "Security scan completed successfully." >> security-scan.log'
+            }
+            post {
+                always {
+                    def buildStatus = currentBuild.result ?: 'SUCCESS'
+                    def subject = "${env.JOB_NAME} - Build ${env.BUILD_NUMBER} - Security Scan ${buildStatus}"
+                    def body = """
+                    Security Scan Status: ${buildStatus}
+                    Job: ${env.JOB_NAME}
+                    Build Number: ${env.BUILD_NUMBER}
+                    """
+
+                    emailext (
+                        to: 'omarseyam1729@gmail.com',
+                        subject: subject,
+                        body: body,
+                        attachmentsPattern: 'security-scan.log'
+                    )
+                }
             }
         }
+
         stage('Deploy to Staging') {
             steps {
-                echo 'Deploying to Staging...'
-                // Example: Save deployment logs to a file
-                sh 'deploy_to_staging.sh | tee deploy_staging.log'
-                archiveArtifacts artifacts: 'deploy_staging.log', allowEmptyArchive: true
+                echo 'Stage 5: Deploy to Staging'
+                echo 'Task: Deploy the application to a staging environment'
+                echo 'Tools: AWS EC2, Docker, Kubernetes'
+                // Add your actual deployment commands here
+            }
+            post {
+                failure {
+                    emailext (
+                        to: 'omarseyam1729@gmail.com',
+                        subject: "${env.JOB_NAME} - Build ${env.BUILD_NUMBER} Failed at Deploy to Staging Stage",
+                        body: "Deployment to staging failed. Please check the logs for details.",
+                        attachLog: true
+                    )
+                }
             }
         }
+
         stage('Integration Tests on Staging') {
             steps {
-                echo 'Running Integration Tests on Staging...'
-                // Example: Save integration test logs to a file
-                sh 'run_integration_tests.sh | tee integration_tests_staging.log'
-                archiveArtifacts artifacts: 'integration_tests_staging.log', allowEmptyArchive: true
+                echo 'Stage 6: Integration Tests on Staging'
+                echo 'Task: Run integration tests in the staging environment'
+                echo 'Tools: Selenium, Cypress, Postman, Cucumber'
+                // Add your actual test commands here
+            }
+            post {
+                failure {
+                    emailext (
+                        to: 'omarseyam1729@gmail.com',
+                        subject: "${env.JOB_NAME} - Build ${env.BUILD_NUMBER} Failed at Integration Tests Stage",
+                        body: "Integration tests on staging failed. Please check the logs for details.",
+                        attachLog: true
+                    )
+                }
             }
         }
+
         stage('Deploy to Production') {
             steps {
-                echo 'Deploying to Production...'
-                // Example: Save deployment logs to a file
-                sh 'deploy_to_production.sh | tee deploy_production.log'
-                archiveArtifacts artifacts: 'deploy_production.log', allowEmptyArchive: true
+                echo 'Stage 7: Deploy to Production'
+                echo 'Task: Deploy the application to the production server'
+                echo 'Tools: AWS EC2, Docker, Kubernetes, Ansible'
+                // Add your actual deployment commands here
+            }
+            post {
+                failure {
+                    emailext (
+                        to: 'omarseyam1729@gmail.com',
+                        subject: "${env.JOB_NAME} - Build ${env.BUILD_NUMBER} Failed at Deploy to Production Stage",
+                        body: "Deployment to production failed. Please check the logs for details.",
+                        attachLog: true
+                    )
+                }
             }
         }
     }
     post {
         always {
-            echo 'Pipeline finished!'
-            archiveArtifacts artifacts: '*.log', allowEmptyArchive: true
-        }
-        failure {
-            emailext(
+            def buildStatus = currentBuild.result ?: 'SUCCESS'
+            def subject = "${env.JOB_NAME} - Build ${env.BUILD_NUMBER} - ${buildStatus}"
+            def body = """
+            Build Status: ${buildStatus}
+            Job: ${env.JOB_NAME}
+            Build Number: ${env.BUILD_NUMBER}
+            """
+
+            emailext (
                 to: 'omarseyam1729@gmail.com',
-                subject: "Jenkins Build Failed: ${env.BUILD_ID}",
-                body: "Build ${env.BUILD_ID} failed. Check Jenkins for details.",
-                attachmentsPattern: '*.log'
-            )
-        }
-        success {
-            emailext(
-                to: 'omarseyam1729@gmail.com',
-                subject: "Jenkins Build Success: ${env.BUILD_ID}",
-                body: "Build ${env.BUILD_ID} completed successfully.",
-                attachmentsPattern: '*.log'
+                subject: subject,
+                body: body,
+                attachLog: true
             )
         }
     }
