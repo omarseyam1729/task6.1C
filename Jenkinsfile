@@ -61,7 +61,7 @@ pipeline {
         script {
             def commitMsg = COMMIT_MESSAGE
             emailext (
-                to: 'omarseyam1729@gmail.com',
+                to: 'omerseyam1729@gmail.com',
                 subject: "Jenkins Build Completed: ${env.BUILD_ID}",
                 body: """Build ${env.BUILD_ID} completed.
                 Commit message: ${commitMsg}""",
@@ -72,7 +72,7 @@ pipeline {
         failure {
             script {
                 emailext (
-                    to: 'omarseyam1729@gmail.com',
+                    to: 'omerseyam1729@gmail.com',
                     subject: "Jenkins Build Failed: ${env.BUILD_ID}",
                     body: """Build ${env.BUILD_ID} failed.
                     Commit message: ${COMMIT_MESSAGE}
@@ -85,7 +85,7 @@ pipeline {
         success {
             script {
                 emailext (
-                    to: 'omarseyam1729@gmail.com',
+                    to: 'omerseyam1729@gmail.com',
                     subject: "Jenkins Build Success: ${env.BUILD_ID}",
                     body: """Build ${env.BUILD_ID} completed successfully.
                     Commit message: ${COMMIT_MESSAGE}""",
