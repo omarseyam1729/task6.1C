@@ -58,27 +58,33 @@ pipeline {
     
     post {
         always {
-            sh "echo 'Pipeline finished at $(date)' >> ${BUILD_LOG}"
+            script {
+                sh "echo 'Pipeline finished at $(date)' >> ${BUILD_LOG}"
+            }
             archiveArtifacts artifacts: "${BUILD_LOG}", allowEmptyArchive: true
         }
         failure {
-            emailext (
-                to: 'omarseyam1729@gmail.com',
-                subject: "Jenkins Build Failed: ${env.BUILD_ID}",
-                body: """Build ${env.BUILD_ID} failed.
-                Commit message: ${COMMIT_MESSAGE}
-                Check Jenkins for details.""",
-                attachmentsPattern: "${BUILD_LOG}"
-            )
+            script {
+                emailext (
+                    to: 'omarseyam1729@gmail.com',
+                    subject: "Jenkins Build Failed: ${env.BUILD_ID}",
+                    body: """Build ${env.BUILD_ID} failed.
+                    Commit message: ${COMMIT_MESSAGE}
+                    Check Jenkins for details.""",
+                    attachmentsPattern: "${BUILD_LOG}"
+                )
+            }
         }
         success {
-            emailext (
-                to: 'omarseyam1729@gmail.com',
-                subject: "Jenkins Build Success: ${env.BUILD_ID}",
-                body: """Build ${env.BUILD_ID} completed successfully.
-                Commit message: ${COMMIT_MESSAGE}""",
-                attachmentsPattern: "${BUILD_LOG}"
-            )
+            script {
+                emailext (
+                    to: 'omarseyam1729@gmail.com',
+                    subject: "Jenkins Build Success: ${env.BUILD_ID}",
+                    body: """Build ${env.BUILD_ID} completed successfully.
+                    Commit message: ${COMMIT_MESSAGE}""",
+                    attachmentsPattern: "${BUILD_LOG}"
+                )
+            }
         }
     }
 }
