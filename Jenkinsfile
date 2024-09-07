@@ -11,47 +11,47 @@ pipeline {
             steps {
                 script {
                     checkout scm
-                    sh "echo 'Checkout completed at $(date)' >> ${BUILD_LOG}"
+                    sh 'echo "Checkout completed at $(date)" >> ${BUILD_LOG}'
                 }
             }
         }
         stage('Build') {
             steps {
                 script {
-                    sh "echo 'Building the code...' >> ${BUILD_LOG}"
+                    sh 'echo "Building the code..." >> ${BUILD_LOG}'
                     COMMIT_MESSAGE = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
-                    sh "echo 'Commit message: ${COMMIT_MESSAGE}' >> ${BUILD_LOG}"
+                    sh 'echo "Commit message: ${COMMIT_MESSAGE}" >> ${BUILD_LOG}'
                 }
             }
         }
         stage('Unit and Integration Tests') {
             steps {
-                sh "echo 'Running Unit and Integration Tests...' >> ${BUILD_LOG}"
+                sh 'echo "Running Unit and Integration Tests..." >> ${BUILD_LOG}'
             }
         }
         stage('Code Analysis') {
             steps {
-                sh "echo 'Running Code Analysis...' >> ${BUILD_LOG}"
+                sh 'echo "Running Code Analysis..." >> ${BUILD_LOG}'
             }
         }
         stage('Security Scan') {
             steps {
-                sh "echo 'Running Security Scan...' >> ${BUILD_LOG}"
+                sh 'echo "Running Security Scan..." >> ${BUILD_LOG}'
             }
         }
         stage('Deploy to Staging') {
             steps {
-                sh "echo 'Deploying to Staging...' >> ${BUILD_LOG}"
+                sh 'echo "Deploying to Staging..." >> ${BUILD_LOG}'
             }
         }
         stage('Integration Tests on Staging') {
             steps {
-                sh "echo 'Running Integration Tests on Staging...' >> ${BUILD_LOG}"
+                sh 'echo "Running Integration Tests on Staging..." >> ${BUILD_LOG}'
             }
         }
         stage('Deploy to Production') {
             steps {
-                sh "echo 'Deploying to Production...' >> ${BUILD_LOG}"
+                sh 'echo "Deploying to Production..." >> ${BUILD_LOG}'
             }
         }
     }
@@ -59,7 +59,7 @@ pipeline {
     post {
         always {
             script {
-                sh "echo 'Pipeline finished at $(date)' >> ${BUILD_LOG}"
+                sh 'echo "Pipeline finished at $(date)" >> ${BUILD_LOG}'
             }
             archiveArtifacts artifacts: "${BUILD_LOG}", allowEmptyArchive: true
         }
