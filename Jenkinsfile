@@ -57,12 +57,17 @@ pipeline {
     }
     
     post {
-        always {
-            script {
-                sh 'echo "Pipeline finished at $(date)" >> ${BUILD_LOG}'
-            }
-            archiveArtifacts artifacts: "${BUILD_LOG}", allowEmptyArchive: true
+    always {
+        script {
+            def commitMsg = COMMIT_MESSAGE
+            emailext (
+                to: 'omarseyam1729@gmail.com',
+                subject: "Jenkins Build Completed: ${env.BUILD_ID}",
+                body: """Build ${env.BUILD_ID} completed.
+                Commit message: ${commitMsg}"""
+            )
         }
+    }
         failure {
             script {
                 emailext (
